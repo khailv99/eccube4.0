@@ -1,0 +1,60 @@
+version: "3"
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  pg-database:
+    driver: local
+  mailcatcher-data:
+    driver: local
+  var:
+    driver: local
+  vendor:
+    driver: local
+  els-data:
+    driver: local
+
+services:
+  ec-cube:
+    build:
+      context: .
+      args:
+        SKIP_INSTALL_SCRIPT_ON_DOCKER_BUILD: "true"
+    ports:
+      - 8080:80
+      - 4430:443
+    volumes:
+      - "./:/var/www/html"
+    depends_on:
+      - postgres
+    networks:
+      - backend
+  postgres:
+    image: postgres:10
+    environment:
+      - POSTGRES_DB=eccubedb
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=secret
+    ports:
+      - 15432:5432
+    volumes:
+      - pg-database:/var/lib/postgresql/data
+    networks:
+      - backend
+  mailcatcher:
+    image: schickling/mailcatcher
+    ports:
+      - 1080:1080
+      - 1025:1025
+    networks:
+      - backend
+  gulp:
+    build:
+      context: .
+      dockerfile: gulp.dockerfile
+    volumes:
+      - ./:/var/www
+    networks:
+      - backend

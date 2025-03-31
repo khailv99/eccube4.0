@@ -1,0 +1,39 @@
+version: "3"
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  var:
+    driver: local
+  vendor:
+    driver: local
+  els-data:
+    driver: local
+
+services:
+  ec-cube:
+    build:
+      context: .
+      dockerfile: stg.dockerfile
+      args:
+        SKIP_INSTALL_SCRIPT_ON_DOCKER_BUILD: "true"
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - "./:/var/www/html"
+    networks:
+      - backend
+    environment:  
+      - "DATABASE_URL=${DATABASE_URL}"
+      - "MAILER_URL=${MAILER_URL}"
+      - "ECCUBE_ADMIN_USER=${ECCUBE_ADMIN_USER}"
+      - "ECCUBE_ADMIN_PASS=${ECCUBE_ADMIN_PASS}"
+      - "VIEW_ID=${VIEW_ID}"
+      - "GOOGLE_API_KEY=${GOOGLE_API_KEY}"
+      - "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}"
+      - "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}"
+      - "MAIL_CC=${MAIL_CC}"
+      - "ECCUBE_AUTH_MAGIC=${ECCUBE_AUTH_MAGIC}"
